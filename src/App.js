@@ -1,16 +1,29 @@
-import React from 'react';
-import Header from './components/Layout/Header/Header';
-import NavBar from './components/Layout/NavBar/NavBar';
-import Menu from './components/Menu/Menu';
-import meals from './__data__/meals';
+import { useState } from 'react';
+
+import Header from './components/Layout/Header';
+import Meals from './components/Meals/Meals';
+import Cart from './components/Cart/Cart';
+import CartProvider from './store/CartProvider';
 
 function App() {
+  const [cartIsShown, setCartIsShown] = useState(false);
+
+  const showCartHandler = () => {
+    setCartIsShown(true);
+  };
+
+  const hideCartHandler = () => {
+    setCartIsShown(false);
+  };
+
   return (
-    <div className='App'>
-      <NavBar quantity={2} />
-      <Header />
-      <Menu data={meals} />
-    </div>
+    <CartProvider>
+      {cartIsShown && <Cart onClose={hideCartHandler} />}
+      <Header onShowCart={showCartHandler} />
+      <main>
+        <Meals />
+      </main>
+    </CartProvider>
   );
 }
 
