@@ -1,11 +1,15 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 
 import Modal from '../UI/Modal';
 import CartItem from './CartItem';
 import classes from './Cart.module.css';
 import CartContext from '../../store/cart-context';
+import ShippingForm from '../ShippingForm/ShippingForm';
 
 const Cart = (props) => {
+  const [activeForm, setActiveForm] = useState(false)
+
+
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -18,6 +22,8 @@ const Cart = (props) => {
   const cartItemAddHandler = (item) => {
     cartCtx.addItem(item);
   };
+
+  const activeFormHandler = () => setActiveForm(true)
 
   const cartItems = (
     <ul className={classes['cart-items']}>
@@ -34,6 +40,14 @@ const Cart = (props) => {
     </ul>
   );
 
+  const onConfirmFormHandler = userData => {
+    console.log(userData);
+    userData.order = cartCtx.items;
+    fetch('https://react-restaurant-6fc3e-default-rtdb.firebaseio.com/orders.json', { method: 'POST', body: JSON.stringify(userData) })
+
+  }
+
+
   return (
     <Modal onClose={props.onClose}>
       {cartItems}
@@ -41,13 +55,17 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
-        <button className={classes['button--alt']} onClick={props.onClose}>
-          Close
-        </button>
-        {hasItems && <button className={classes.button}>Order</button>}
-      </div>
+      {!activeForm &&
+        <div className={classes.actions}>
+          <button className={classes['button--alt']} onClick={props.onClose}>
+            Close
+          </button>
+          {hasItems && <button className={classes.button} onClick={activeFormHandler}>Order</button>}
+        </div>
+      }
+      {activeForm && <ShippingForm onClose={props.onClose} onConfirm={onConfirmFormHandler} />}
     </Modal>
+
   );
 };
 
